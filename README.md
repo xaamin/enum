@@ -1,0 +1,2 @@
+# enum
+PHP enum implementation

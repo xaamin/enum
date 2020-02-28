@@ -1,0 +1,19 @@
+{
+    "name": "xaamin/enum",
+    "description": "PHP Enum implementation",
+    "keywords": ["enum", "php", "php-enum"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Benjamín Martínez Mateos",
+            "email": "xaamin@outlook.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Xaamin\\Enum\\": "src/"
+        }
+    },
+    "require": {}
+}

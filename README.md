@@ -156,5 +156,5 @@ You can search enum with its textual value:
 ```php
 $invoice = InvoiceStatus::search('invoice.pending');
 
-// $invoice is 'paid'
+// $invoice is 'pending'
 ```

@@ -49,6 +49,18 @@ class Enum
      * @return boolean
      */
 
+    public function isValid($name)
+    {
+        return !empty($this->resolve($name));
+    }
+
+    /**
+     * Check if given value is in the enum values
+     *
+     * @param Enum|string $name
+     * @return boolean
+     */
+
     public function equals($name)
     {
         return $this->isEqual($name);
@@ -124,7 +136,7 @@ class Enum
 
     public function toString()
     {
-        return $this->getValue();
+        return (string)$this->getValue();
     }
 
     protected function fill(array $enum = [])
@@ -182,19 +194,20 @@ class Enum
         return $entry;
     }
 
-    protected function makeValueForName($name, $value)
+    protected function makeValueForName($name, $value, array $meta = null)
     {
         return [
             'name' => $name,
             'value' => $value,
+            'meta' => $meta
         ];
     }
 
-    protected function setValueForName($name, $value)
+    protected function setValueForName($name, $value, array $meta = null)
     {
         $alias = strtoupper($name);
 
-        static::$cached[static::class][$alias] = $this->makeValueForName($name, $value);
+        static::$cached[static::class][$alias] = $this->makeValueForName($name, $value, $meta);
     }
 
     protected static function startsWith(string $haystack, string $needle)
@@ -239,6 +252,6 @@ class Enum
 
     public function __toString()
     {
-        return $this->getValue();
+        return $this->toString();
     }
 }

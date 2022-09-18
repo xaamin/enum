@@ -1,6 +1,7 @@
 <?php
 namespace Xaamin\Enum;
 
+use Throwable;
 use BadMethodCallException;
 use InvalidArgumentException;
 
@@ -49,9 +50,15 @@ class Enum
      * @return boolean
      */
 
-    public function isValid($name)
+    public static function isValidName($name)
     {
-        return !empty($this->resolve($name));
+        try {
+            new static($name);
+        } catch (Throwable $th) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 namespace Xaamin\Enum;
 
 use Throwable;
@@ -170,7 +171,7 @@ class Enum
         if (!isset(static::$cached[static::class])) {
             static::$cached[static::class] = [];
 
-            (new static)->fill();
+            (new static())->fill();
         }
 
         if (!$name) {
@@ -249,7 +250,7 @@ class Enum
             return new static($entry['name'], $entry['value']);
         }
 
-        throw new BadMethodCallException('Call to undefined method '. static::class .'->'. $name .'()');
+        throw new BadMethodCallException('Call to undefined method ' . static::class . '->' . $name . '()');
     }
 
     public static function __callStatic($name, $arguments)
@@ -258,7 +259,7 @@ class Enum
         $startsWithIs = static::startsWith($name, 'is');
 
         if ($startsWithIs && !isset($arguments[0])) {
-            throw new InvalidArgumentException('Calling '. static::class .'::'. $name .'() in static context requires one argument');
+            throw new InvalidArgumentException('Calling ' . static::class . '::' . $name . '() in static context requires one argument');
         }
 
         $name = $startsWithIs ? substr($name, 2) : $name;

@@ -1,13 +1,13 @@
 # PHP Enum implementation
 
-This package offers enums in PHP. We don't use a simple "value" representation, so you're always working with the enum object. This allows for proper autocompletion and refactoring in IDEs.
-
+This package offers enums in PHP. We don't use a simple "value" representation, so you're always working with the enum object. This allows for proper type hinting, autocompletion and refactoring in IDEs.
 
 ## Why?
 
 Using an enum instead of class constants provides the following advantages:
 
-- You can enrich the enum with alias methods names (e.g. `draft()`, `published()`, …)
+- You can type hint the enum: `function setStatus(InvoiceStatus $status)`
+- You can enrich the enum with alias method names (e.g. `pending()`, `paid()`, …)
 - You can extend the enum to add new values (make your enum `final` to prevent it)
 - You can get a list of all the possible values (see below)
 
@@ -15,62 +15,24 @@ This Enum class is not intended to replace class constants, but only to be used 
 
 ## Installation
 
-```
+```bash
 composer require xaamin/enum
 ```
 
 ## Declaration
 
+Extend `Xaamin\Enum\Enum` and declare the available entries in the `$enum` property (name as key, value as value). Add `@method` doc blocks to get IDE autocompletion for the static constructors and the `is*` methods.
+
 ```php
 use Xaamin\Enum\Enum;
 
-class InvoiceStatus extends Enum
-{
-    protected $enum = [
-        'pending' => 'invoice.pending',
-        'paid' => 'invoice.paid',
-        'overdue' => 'invoice.overdue',
-    ];
-}
-```
-
-## Documentation
-
-- `getName()` Returns the name of the current value on Enum
-- `getValue()` Returns the current value of the enum
-- `equals($enum)` Tests whether 2 enum instances are equal (returns `true` if enum values are equal, `false` otherwise)
-
-Static methods:
-
-- `toArray()` method Returns all possible values as an array (constant name in key, constant value in value)
-- `keys()` Returns the names (keys) of all constants in the Enum class
-- `values()` Returns instances of the Enum class of all Enum constants (constant name in key, Enum instance in value)
-- `search()` Return key for the searched value
-
-### Static methods
-
-```php
-class InvoiceStatus extends Enum
-{
-    protected $enum = [
-        'pending' => 'invoice.pending',
-        'paid' => 'invoice.paid',
-        'overdue' => 'invoice.overdue',
-    ];
-}
-
-// Static method:
-$invoice = InvoiceStatus::pending();
-$invoice = InvoiceStatus::paid();
-```
-
-You can use phpdoc for autocompletion, this is supported in some IDEs:
-
-```php
 /**
  * @method static self pending()
  * @method static self paid()
  * @method static self overdue()
+ * @method bool isPending()
+ * @method bool isPaid()
+ * @method bool isOverdue()
  */
 class InvoiceStatus extends Enum
 {
@@ -84,77 +46,112 @@ class InvoiceStatus extends Enum
 
 ## Usage
 
-This is how an enum can be defined.
+### Creating an instance
 
 ```php
-/**
- * @method static self pending()
- * @method static self paid()
- * @method static self overdue()
- */
-class InvoiceStatus extends Enum
-{
-    protected $enum = [
-        'pending' => 'invoice.pending',
-        'paid' => 'invoice.paid',
-        'overdue' => 'invoice.overdue',
-    ];
-}
+$status = InvoiceStatus::paid();        // static alias method
+$status = InvoiceStatus::make('paid');  // from a name
+$status = new InvoiceStatus('paid');
+
+// Names are case insensitive
+$status = InvoiceStatus::PAID();
+
+// Unknown names throw an InvalidArgumentException
+InvoiceStatus::make('refunded');
+// The given name [refunded] is not available in this enum InvoiceStatus
 ```
 
-This is how they are used:
+Use it as a type hint:
 
 ```php
-public function setInvoiceStatus(InvoiceStatus $invoice)
+public function setInvoiceStatus(InvoiceStatus $status)
 {
-    $this->invoice = $invoice;
+    $this->status = $status;
 }
 
-// ...
-
-$class->setInvoiceStatus(InvoiceStatus::paid());
+$invoice->setInvoiceStatus(InvoiceStatus::paid());
 ```
 
-This is how get we can get the enum name from a value:
+### Reading the name and value
 
 ```php
-$invoice = InvoiceStatus::search('invoice.overdue');
+$status = InvoiceStatus::paid();
 
-// $invoice is 'overdue'
-```
-
-### Creating an enum from a value
-
-```php
-$invoice = InvoiceStatus::make('paid');
+$status->getName();   // 'paid'
+$status->getValue();  // 'invoice.paid'
+$status->toString();  // 'invoice.paid'
+(string) $status;     // 'invoice.paid'
 ```
 
 ### Comparing enums
 
-Enums can be compared using the `equals` method:
-
 ```php
-$invoice->equals($invoice);
+$status = InvoiceStatus::paid();
+
+$status->equals(InvoiceStatus::paid());   // true
+$status->equals('paid');                  // true, accepts a name (case insensitive)
+$status->equals(InvoiceStatus::pending()); // false
+
+// Dynamic "is" methods
+$status->isPaid();                  // true
+$status->isPending();               // false
+InvoiceStatus::isPaid($status);     // true, static form requires the enum as argument
 ```
 
-You can also use dynamic `is` methods:
+### Listing the entries
 
 ```php
-// return a boolean
-$invoice->isPaid();
+InvoiceStatus::keys();
+// ['pending', 'paid', 'overdue']
 
-// return a boolean
-InvoiceStatus::isPaid($invoice);
+InvoiceStatus::values();
+// ['invoice.pending', 'invoice.paid', 'invoice.overdue']
+
+InvoiceStatus::toArray(); // or InvoiceStatus::all()
+// ['pending' => 'invoice.pending', 'paid' => 'invoice.paid', 'overdue' => 'invoice.overdue']
 ```
 
-Note that if you want auto completion on these `is` methods, you must add extra doc blocks on your enum classes.
+### Searching by value
 
-### Search
-
-You can search enum with its textual value:
+`search()` finds an entry by its value (case insensitive) and returns an enum instance, or `null` when nothing matches.
 
 ```php
-$invoice = InvoiceStatus::search('invoice.pending');
+$status = InvoiceStatus::search('invoice.overdue');
 
-// $invoice is 'pending'
+$status->getName(); // 'overdue'
+
+InvoiceStatus::search('invoice.unknown'); // null
 ```
+
+### Validating a name
+
+```php
+InvoiceStatus::isValidName('paid');     // true
+InvoiceStatus::isValidName('refunded'); // false
+```
+
+## API reference
+
+| Method | Description |
+| --- | --- |
+| `Enum::make($name)` / `Enum::{name}()` | Creates an instance for the given name |
+| `getName()` | Name of the current entry |
+| `getValue()` | Value of the current entry |
+| `toString()` / `__toString()` | Value of the current entry as string |
+| `equals($enum)` | Compares against another instance or a name |
+| `is{Name}()` | Checks whether the instance is the given entry |
+| `Enum::keys()` | List of names |
+| `Enum::values()` | List of values |
+| `Enum::toArray()` / `Enum::all()` | Names as keys, values as values |
+| `Enum::search($value)` | Instance for the given value or `null` |
+| `Enum::isValidName($name)` | Whether the name exists in the enum |
+
+## Testing
+
+```bash
+composer test
+```
+
+## License
+
+The MIT License (MIT). Please see [License File](LICENSE) for more information.

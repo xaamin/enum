@@ -17,6 +17,20 @@
     },
     "require-dev": {
         "phpstan/phpstan": "^2.1",
-        "squizlabs/php_codesniffer": "^3.8"
+        "squizlabs/php_codesniffer": "^3.8",
+        "pestphp/pest": "^5.3"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Xaamin\\Enum\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "pest"
     }
 }

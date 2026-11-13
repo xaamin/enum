@@ -6,6 +6,7 @@
   "author": "Benjamín Martínez Mateos",
   "license": "ISC",
   "scripts": {
+    "test": "vendor/bin/pest",
     "prepare": "husky install",
     "code:scan": "vendor/bin/phpstan --memory-limit=256M",
     "code:baseline": "vendor/bin/phpstan --memory-limit=256M --generate-baseline",
@@ -31,9 +32,21 @@
       "@commitlint/config-conventional"
     ],
     "rules": {
-      "type-case": [2, "always", "lower-case"],
-      "scope-case": [2, "always", "lower-case"],
-      "subject-case": [2, "always", "lower-case"]
+      "type-case": [
+        2,
+        "always",
+        "lower-case"
+      ],
+      "scope-case": [
+        2,
+        "always",
+        "lower-case"
+      ],
+      "subject-case": [
+        2,
+        "always",
+        "lower-case"
+      ]
     }
   }
 }

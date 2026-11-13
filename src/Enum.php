@@ -85,7 +85,7 @@ class Enum
             $name = $name->getName();
         }
 
-        return strtoupper($name) === strtoupper($this->getName());
+        return static::upper($name) === static::upper($this->getName());
     }
 
     public static function search($value)
@@ -96,7 +96,7 @@ class Enum
         foreach ($cached as $entry) {
             $internal = $entry['value'];
 
-            if (strtoupper($internal) === strtoupper($value)) {
+            if (static::upper($internal) === static::upper($value)) {
                 $key = $entry;
 
                 break;
@@ -165,7 +165,7 @@ class Enum
 
     protected static function resolve($name = null)
     {
-        $name = strtoupper($name);
+        $name = static::upper($name);
 
         if (!isset(static::$cached[static::class])) {
             static::$cached[static::class] = [];
@@ -201,7 +201,7 @@ class Enum
         return $entry;
     }
 
-    protected function makeValueForName($name, $value, array $meta = null)
+    protected function makeValueForName($name, $value, ?array $meta = null)
     {
         return [
             'name' => $name,
@@ -210,11 +210,22 @@ class Enum
         ];
     }
 
-    protected function setValueForName($name, $value, array $meta = null)
+    protected function setValueForName($name, $value, ?array $meta = null)
     {
         $alias = strtoupper($name);
 
         static::$cached[static::class][$alias] = $this->makeValueForName($name, $value, $meta);
+    }
+
+    /**
+     * Uppercases a name or value, null is treated as an empty string
+     *
+     * @param mixed $value
+     * @return string
+     */
+    protected static function upper($value)
+    {
+        return $value === null ? '' : strtoupper($value);
     }
 
     protected static function startsWith(string $haystack, string $needle)

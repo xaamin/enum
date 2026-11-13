@@ -178,11 +178,9 @@ class Enum
             return static::$cached[static::class];
         }
 
-        if (!isset(static::$cached[static::class][$name])) {
-            static::$cached[static::class][$name] = [];
-        }
-
-        return static::$cached[static::class][$name];
+        // Unknown names must not be cached: an empty entry would leak into
+        // keys(), values(), toArray() and search().
+        return static::$cached[static::class][$name] ?? [];
     }
 
     protected function getValueFromCache($name)
